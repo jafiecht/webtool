@@ -1,12 +1,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+import App from 'cerebral';
+import Devtools from 'cerebral/devtools';
+import { Container } from '@cerebral/react';
+import AppRoot from './components/AppRoot';
+import root from './modules/root/';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+const app = App(root, {
+  devtools: Devtools({
+    host: 'localhost:8585'
+  })
+});
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+ReactDOM.render(
+  <Container app={app}>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" />
+    <AppRoot/>
+  </Container>, 
+  document.getElementById('root')
+);
+
