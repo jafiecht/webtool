@@ -1,6 +1,6 @@
-import { sequence } from 'cerebral';
+import { sequence, state } from 'cerebral';
 //import { state, props } from 'cerebral/tags';
 
 export const pageAhead = sequence("pageAhead", [
-  console.log('Hello there!')
+  ({store}) => {store.increment(state`currentPage`, 1)},
 ]);    

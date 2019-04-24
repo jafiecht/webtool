@@ -14,7 +14,6 @@ const app = App(root, {
 
 ReactDOM.render(
   <Container app={app}>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" />
     <AppRoot/>
   </Container>, 
   document.getElementById('root')

@@ -3,18 +3,19 @@ import { state } from 'cerebral';
 import { connect } from '@cerebral/react';
 import { withStyles } from '@material-ui/core/styles';
 import MenuBar from './MenuBar.js';
-import Welcome from './Welcome.js';
+import Welcome from './pages/Welcome.js';
+import Upload from './pages/Upload.js';
 import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
 
 const styles = theme => ({
   root: {
-    flexGrow: 1,
   },
   toolbar: theme.mixins.toolbar,
   content: {
-    flexGrow: 1,
-    padding: theme.spacing.unit * 3,
-    backgroundImage: 'url(https://images.pexels.com/photos/1000057/pexels-photo-1000057.jpeg?cs=srgb&dl=cropland-farm-farmland-1000057.jpg&fm=jpg)'
+  },
+  paper: {
+    margin: theme.spacing.unit*3,
   }
 });
 
@@ -23,11 +24,22 @@ class AppRoot extends Component {
   render() {
     const{ classes } = this.props;
     return (
-      <div>
-        <MenuBar/>
+      <div className={classes.root}>
+        {/*<MenuBar/>*/}
         <Grid className={classes.content}>
-          <div className={classes.toolbar}/>
-          <Welcome/>
+          {/*<div className={classes.toolbar}/>*/}
+          <Paper className={classes.paper}>
+            {(()=>{
+              switch(this.props.currentPage) {
+                case 0:
+                  return <Welcome/>
+                case 1:
+                  return <Upload/>
+                default:
+                  return null 
+              }
+            })()}
+          </Paper>
         </Grid>
       </div>
     );
