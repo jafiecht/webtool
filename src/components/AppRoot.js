@@ -5,6 +5,9 @@ import { withStyles } from '@material-ui/core/styles';
 import MenuBar from './MenuBar.js';
 import Welcome from './pages/Welcome.js';
 import Upload from './pages/Upload.js';
+import Draw from './pages/Draw.js';
+import View from './pages/View.js';
+import Status from './pages/Status.js';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 
@@ -35,8 +38,14 @@ class AppRoot extends Component {
                   return <Welcome/>
                 case 1:
                   return <Upload/>
+                case 2: 
+                  return <Draw/>
+                case 3: 
+                  return <Status/>
+                case 4: 
+                  return <View/>
                 default:
-                  return null 
+                  return <Welcome/> 
               }
             })()}
           </Paper>

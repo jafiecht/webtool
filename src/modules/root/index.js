@@ -3,7 +3,8 @@ import * as sequences from './sequences';
 
 export default {
   state:{
-    currentPage: 0
+    currentPage: 0,
+    fileType: 'csv'
   },
   sequences,
 };
