@@ -4,7 +4,8 @@ import * as sequences from './sequences';
 export default {
   state:{
     currentPage: 0,
-    fileType: 'csv'
+    fileType: 'csv',
+    rawCSV: null,
   },
   sequences,
 };
