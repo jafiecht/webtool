@@ -3,10 +3,12 @@ import * as sequences from './sequences';
 
 export default {
   state:{
-    currentPage: 0,
+    currentPage: 1,
     fileType: 'csv',
-    rawCSV: null,
-    csvInfo: {lat: null, lon: null, interest: null},
+    csvData: null,
+    shpData: null,
+    sampleLocations: null,
+    error: null,
   },
   sequences,
 };

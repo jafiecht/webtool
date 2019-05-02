@@ -3,8 +3,6 @@ import { state, sequences } from 'cerebral';
 import ReactFileReader from 'react-file-reader';
 import { connect } from '@cerebral/react';
 import { withStyles } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
@@ -26,6 +24,9 @@ import CSVContent from './uploads/CSVContent.js';
 const styles = theme => ({
   title: {
     marginTop: theme.spacing.unit*3,
+  },
+  paper: {
+    margin: theme.spacing.unit*3,
   },
   button: {
     margin: theme.spacing.unit*3
@@ -105,39 +106,41 @@ class Upload extends Component {
       
 
     return (
-      <Grid container direction='column' justify='center' alignItems='center'>
-        <Grid item xs={12}>
-          <Typography variant='title' className={classes.title}>
-            Upload your soil data
-          </Typography>
+      <Paper className={classes.paper}>
+        <Grid container direction='column' justify='center' alignItems='center'>
+          <Grid item xs={12}>
+            <Typography variant='title' className={classes.title}>
+              Upload your soil data
+            </Typography>
+          </Grid>
+          <Grid item xs={12}>
+            <FormControl className={classes.radio}>
+              <RadioGroup
+                value={this.props.fileType}
+                onChange={(event) => this.props.setFileType({type: event.target.value})}
+                row>
+                <FormControlLabel
+                  value='csv'
+                  label='Import as csv'
+                  control={<Radio/>}/>
+                <FormControlLabel
+                  value='shp'
+                  label='Import as shapefile'
+                  control={<Radio/>}/>
+              </RadioGroup>
+            </FormControl>
+          </Grid>
+          {content}
+          <Grid item xs={12}>
+            <Button 
+              variant='contained' 
+              className={classes.button}
+              onClick={() => {this.props.assembleObservations()}}>
+              Draw Field Boundary
+            </Button>
+          </Grid>
         </Grid>
-        <Grid item xs={12}>
-          <FormControl className={classes.radio}>
-            <RadioGroup
-              value={this.props.fileType}
-              onChange={(event) => this.props.setFileType({type: event.target.value})}
-              row>
-              <FormControlLabel
-                value='csv'
-                label='Import as csv'
-                control={<Radio/>}/>
-              <FormControlLabel
-                value='shp'
-                label='Import as shapefile'
-                control={<Radio/>}/>
-            </RadioGroup>
-          </FormControl>
-        </Grid>
-        {content}
-        <Grid item xs={12}>
-          <Button 
-            variant='contained' 
-            className={classes.button}
-            onClick={() => this.props.changePage({page: 2})}>
-            Draw Field Boundary
-          </Button>
-        </Grid>
-      </Grid>
+      </Paper>
     );
   }
 }
@@ -149,6 +152,7 @@ export default connect(
 
     changePage: sequences`changePage`,
     setFileType: sequences`setFileType`,
+    assembleObservations: sequences`assembleObservations`,
     //loadCSV: sequences`loadCSV`,
     //deleteCSV: sequences`deleteCSV`
   },

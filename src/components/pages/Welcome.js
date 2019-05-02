@@ -33,6 +33,7 @@ class Welcome extends Component {
   render() {
     const{ classes } = this.props;
     return (
+      <Paper className={classes.paper}>
       <Grid container justify='center'>
         <Typography variant='title' className={classes.title}>
           Welcome to the Soil Mapper!
@@ -47,6 +48,7 @@ class Welcome extends Component {
           Upload Soil Data
         </Button>
       </Grid>
+      </Paper>
     );
   }
 }

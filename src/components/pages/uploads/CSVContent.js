@@ -3,6 +3,7 @@ import { state, sequences } from 'cerebral';
 import ReactFileReader from 'react-file-reader';
 import { connect } from '@cerebral/react';
 import { withStyles } from '@material-ui/core/styles';
+import uuid from 'uuid';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import FormControl from '@material-ui/core/FormControl';
@@ -24,6 +25,8 @@ const styles = theme => ({
   select: {
     paddingLeft: theme.spacing.unit*3,
     paddingRight: theme.spacing.unit*3,
+    paddingTop: theme.spacing.unit,
+    paddingBottom: theme.spacing.unit,
   },
   text: {
     marginRight: theme.spacing.unit*3,
@@ -41,7 +44,7 @@ class CSVContent extends Component {
     const{ classes } = this.props;
 
     var content;
-    if (this.props.rawCSV) {
+    if (this.props.csvData) {
       content =
       <div>
         <Grid item xs={12} className={classes.root}>
@@ -49,7 +52,7 @@ class CSVContent extends Component {
             <List className={classes.list}> 
               <ListItem 
                 button
-                onClick={() => this.props.deleteCSV()}>
+                onClick={() => this.props.deleteSoilData()}>
                 <ListItemIcon>
                   <DeleteIcon/>
                 </ListItemIcon>
@@ -65,28 +68,40 @@ class CSVContent extends Component {
           </Grid>
           <Grid item xs={12} className={classes.select}>
             <FormControl fullWidth>   
-              <InputLabel>Latitude</InputLabel> 
+              <InputLabel shrink>Latitude</InputLabel> 
               <Select
-                value={this.props.csvInfo.lat}
+                value={this.props.csvData.latLabel}
                 onChange={(event) => this.props.setLat({lat: event.target.value})}>    
-                {this.props.rawCSV[0].map(value => (
-                  <MenuItem value={value}>{value}</MenuItem>
+                {this.props.csvData.data[0].map(value => (
+                  <MenuItem value={value} key={uuid.v4()}>{value}</MenuItem>
                 ))}    
               </Select>     
             </FormControl>          
           </Grid>
           <Grid item xs={12} className={classes.select}>
             <FormControl fullWidth>   
-              <InputLabel>Longitude</InputLabel> 
+              <InputLabel shrink>Longitude</InputLabel> 
               <Select
-                value={this.props.csvInfo.lon}
+                value={this.props.csvData.lonLabel}
                 onChange={(event) => this.props.setLon({lon: event.target.value})}>    
-                {this.props.rawCSV[0].map(value => (
-                  <MenuItem value={value}>{value}</MenuItem>
+                {this.props.csvData.data[0].map(value => (
+                  <MenuItem value={value} key={uuid.v4()}>{value}</MenuItem>
                 ))}    
               </Select>     
             </FormControl>          
           </Grid>
+          <Grid item xs={12} className={classes.select}>
+            <FormControl fullWidth>   
+              <InputLabel shrink>Field to Interpolate</InputLabel> 
+              <Select
+                value={this.props.csvData.interestLabel}
+                onChange={(event) => this.props.setInterest({interest: event.target.value})}>    
+                {this.props.csvData.data[0].map(value => (
+                  <MenuItem value={value} key={uuid.v4()}>{value}</MenuItem>
+                ))}    
+              </Select>     
+            </FormControl>          
+          </Grid> 
         </Grid>
       </div>
     } else {
@@ -122,13 +137,14 @@ class CSVContent extends Component {
 
 export default connect(
   {
-    rawCSV: state`rawCSV`,
-    csvInfo: state`csvInfo`,
+    csvData: state`csvData`,
+    //csvInfo: state`csvInfo`,
 
     setLat: sequences`setLat`,
     setLon: sequences`setLon`,
+    setInterest: sequences`setInterest`,
     loadCSV: sequences`loadCSV`,
-    deleteCSV: sequences`deleteCSV`
+    deleteSoilData: sequences`deleteSoilData`
   },
   withStyles(styles, {withTheme: true})(CSVContent)
 );
