@@ -17,27 +17,21 @@ import MenuItem from '@material-ui/core/MenuItem';
 import InputLabel from '@material-ui/core/InputLabel';
 
 const styles = theme => ({
-  paper: {
-    margin: theme.spacing.unit*3,
+  list: {
+    marginLeft: theme.spacing.unit*3,
+    marginRight: theme.spacing.unit*3,
+  },
+  select: {
+    paddingLeft: theme.spacing.unit*3,
+    paddingRight: theme.spacing.unit*3,
   },
   text: {
-    padding: theme.spacing.unit*3,
+    marginRight: theme.spacing.unit*3,
+    marginLeft: theme.spacing.unit*3,
   },
-  title: {
-    marginTop: theme.spacing.unit*3,
+  root: {
+    flexGrow: 1,
   },
-  button: {
-    margin: theme.spacing.unit*3
-  },
-  uploadButton: {
-    margin: theme.spacing.unit*3,
-  },
-  buttonIcon: {
-    marginLeft: theme.spacing.unit,
-  },
-  gridItem: {
-    alignItems: 'center',
-  }
 });
 
 
@@ -50,47 +44,55 @@ class CSVContent extends Component {
     if (this.props.rawCSV) {
       content =
       <div>
-        <Grid item xs={12}>
-          <List> 
-            <ListItem 
-              button
-              onClick={() => this.props.deleteCSV()}>
-              <ListItemIcon>
-                <DeleteIcon/>
-              </ListItemIcon>
-              <ListItemText
-                primary="Delete .csv file"/>
-            </ListItem>
-          </List>
-        </Grid>
-        <Grid item xs={12}>
-          <Typography>
-            Select .csv Latitude and Longtitude fields. Coordinates assumed to be WGS84.
-          </Typography>
-        </Grid>
-        <Grid item xs={6}>
-          <FormControl>   
-            <InputLabel>Latitude</InputLabel> 
-            <Select>    
-              <MenuItem>1</MenuItem>
-              <MenuItem>2</MenuItem>
-            </Select>     
-          </FormControl>          
-        </Grid>
-        <Grid item xs={6}>
-          <FormControl>   
-            <InputLabel>Longtitue</InputLabel> 
-            <Select>    
-              <MenuItem>1</MenuItem>
-              <MenuItem>2</MenuItem>
-            </Select>     
-          </FormControl>          
+        <Grid item xs={12} className={classes.root}>
+          <Grid container justify='center'>
+            <List className={classes.list}> 
+              <ListItem 
+                button
+                onClick={() => this.props.deleteCSV()}>
+                <ListItemIcon>
+                  <DeleteIcon/>
+                </ListItemIcon>
+                <ListItemText
+                  primary="Delete .csv file"/>
+              </ListItem>
+            </List>
+          </Grid>
+          <Grid item xs={12}>
+            <Typography className={classes.text}>
+              Select .csv Latitude and Longtitude fields. Coordinates assumed to be WGS84.
+            </Typography>
+          </Grid>
+          <Grid item xs={12} className={classes.select}>
+            <FormControl fullWidth>   
+              <InputLabel>Latitude</InputLabel> 
+              <Select
+                value={this.props.csvInfo.lat}
+                onChange={(event) => this.props.setLat({lat: event.target.value})}>    
+                {this.props.rawCSV[0].map(value => (
+                  <MenuItem value={value}>{value}</MenuItem>
+                ))}    
+              </Select>     
+            </FormControl>          
+          </Grid>
+          <Grid item xs={12} className={classes.select}>
+            <FormControl fullWidth>   
+              <InputLabel>Longitude</InputLabel> 
+              <Select
+                value={this.props.csvInfo.lon}
+                onChange={(event) => this.props.setLon({lon: event.target.value})}>    
+                {this.props.rawCSV[0].map(value => (
+                  <MenuItem value={value}>{value}</MenuItem>
+                ))}    
+              </Select>     
+            </FormControl>          
+          </Grid>
         </Grid>
       </div>
     } else {
       content =
       <Grid item xs={12}>
-        <List> 
+        <List className={classes.list}> 
           <ReactFileReader 
             fileTypes={".csv"} 
             handleFiles={(files) => this.props.loadCSV({file: files})}>
@@ -121,10 +123,10 @@ class CSVContent extends Component {
 export default connect(
   {
     rawCSV: state`rawCSV`,
-    //fileType: state`fileType`,
+    csvInfo: state`csvInfo`,
 
-    //changePage: sequences`changePage`,
-    //setFileType: sequences`setFileType`,
+    setLat: sequences`setLat`,
+    setLon: sequences`setLon`,
     loadCSV: sequences`loadCSV`,
     deleteCSV: sequences`deleteCSV`
   },

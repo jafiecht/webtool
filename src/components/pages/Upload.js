@@ -24,26 +24,15 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import CSVContent from './uploads/CSVContent.js';
 
 const styles = theme => ({
-  paper: {
-    margin: theme.spacing.unit*3,
-  },
-  text: {
-    padding: theme.spacing.unit*3,
-  },
   title: {
     marginTop: theme.spacing.unit*3,
   },
   button: {
     margin: theme.spacing.unit*3
   },
-  uploadButton: {
-    margin: theme.spacing.unit*3,
-  },
-  buttonIcon: {
-    marginLeft: theme.spacing.unit,
-  },
-  gridItem: {
-    alignItems: 'center',
+  radio: {
+    marginLeft: theme.spacing.unit*3,
+    marginRight: theme.spacing.unit*3,
   }
 });
 
@@ -117,13 +106,13 @@ class Upload extends Component {
 
     return (
       <Grid container direction='column' justify='center' alignItems='center'>
-        <Grid item xs={12} className={classes.gridItem}>
+        <Grid item xs={12}>
           <Typography variant='title' className={classes.title}>
             Upload your soil data
           </Typography>
         </Grid>
         <Grid item xs={12}>
-          <FormControl>
+          <FormControl className={classes.radio}>
             <RadioGroup
               value={this.props.fileType}
               onChange={(event) => this.props.setFileType({type: event.target.value})}
@@ -155,13 +144,13 @@ class Upload extends Component {
 
 export default connect(
   {
-    currentPage: state`currentPage`,
+    //currentPage: state`currentPage`,
     fileType: state`fileType`,
 
     changePage: sequences`changePage`,
     setFileType: sequences`setFileType`,
-    loadCSV: sequences`loadCSV`,
-    deleteCSV: sequences`deleteCSV`
+    //loadCSV: sequences`loadCSV`,
+    //deleteCSV: sequences`deleteCSV`
   },
   withStyles(styles, {withTheme: true})(Upload)
 );

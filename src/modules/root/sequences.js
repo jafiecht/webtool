@@ -27,5 +27,17 @@ export const loadCSV = sequence("loadCSV", [
 
 export const deleteCSV = sequence("deleteCSV", [
   ({store}) => {store.set(state`rawCSV`, null)},
+  ({store}) => {store.set(state`csvInfo.lat`, null)},
+  ({store}) => {store.set(state`csvInfo.lon`, null)},
+  ({store}) => {store.set(state`csvInfo.interest`, null)},
 ]);
+
+export const setLat = sequence("setLat", [
+  ({store, props}) => {store.set(state`csvInfo.lat`, props.lat)},
+]); 
+
+export const setLon = sequence("setLon", [
+  ({store, props}) => {store.set(state`csvInfo.lon`, props.lon)},
+]); 
+
 

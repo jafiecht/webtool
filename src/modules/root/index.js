@@ -6,6 +6,7 @@ export default {
     currentPage: 0,
     fileType: 'csv',
     rawCSV: null,
+    csvInfo: {lat: null, lon: null, interest: null},
   },
   sequences,
 };
