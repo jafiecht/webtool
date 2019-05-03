@@ -12,7 +12,9 @@ export default {
     map: {
       mapCenter: [],
       vertices: {},
+      centroid:[],
     },
+    pointsGeojson: null,
   },
   sequences,
 };

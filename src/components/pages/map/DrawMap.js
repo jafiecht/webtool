@@ -92,7 +92,6 @@ class DrawMap extends Component {
       );
     }
 
-
     return (
       <Map 
         className={classes.map}
@@ -115,7 +114,6 @@ class DrawMap extends Component {
 
 export default connect(
   {
-    //currentPage: state`currentPage`,
     observations: state`observations`,
     vertices: state`map.vertices`,
 

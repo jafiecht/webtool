@@ -1,4 +1,6 @@
 import { sequence, state } from 'cerebral';
+import {featureCollection, point} from '@turf/helpers';
+import * as turf from '@turf/turf';
 
 ////////////////////////////////////////////////////////////////////////
 //Change the page. Will likely need a rework
@@ -12,6 +14,7 @@ export const deleteSoilData = sequence("deleteSoilData", [
   ({store}) => {store.set(state`csvData`, null)},
   ({store}) => {store.set(state`shpData`, null)},
   ({store}) => {store.set(state`observations`, null)},
+  ({store}) => {store.set(state`pointsGeojson`, null)},
 ]);
 
 ////////////////////////////////////////////////////////////////////////
@@ -45,13 +48,20 @@ export const loadCSV = sequence("loadCSV", [
       if (err) {
         store.set(state`error`, err);
       } else {
-        store.set(state`csvData`, {
-          data: rows,
-          latLabel: null,
-          lonLabel: null,
-          interestLabel: null,
-        });
-      };
+        if (rows.length < 11) {
+          err = `${rows.length - 1} is not enough points for interpolation. At least ten observations are required.`;
+        } 
+        if (err) {
+          store.set(state`error`, err);
+        } else {
+          store.set(state`csvData`, {
+            data: rows,
+            latLabel: null,
+            lonLabel: null,
+            interestLabel: null,
+          });
+        };
+      }
     }
     reader.readAsText(props.file[0]);
   },
@@ -143,8 +153,25 @@ export const assembleObservations = sequence("assembleObservations", [
         });
         //Remove head
         observations.shift();
-        store.set(state`observations`, observations);
-        store.set(state`currentPage`, 2);
+        var features = [];
+        observations.forEach((obs) => {
+          features.push(point([obs[0], obs[1]], {value: obs[2]}));
+        });
+        var pointsGeojson = featureCollection(features);
+        var bbox = turf.bboxPolygon(turf.bbox(pointsGeojson));
+        console.log(turf.area(bbox));
+        console.log(turf.length(bbox));
+        if (turf.area(bbox) > 258000 || turf.length(bbox) > 6) {
+          store.set(state`error`, 'Points are spread out over too large an area for interpolation.')
+        } else {
+          if (turf.area(bbox) < 405) {
+            store.set(state`error`, 'Point area is too small for interpolation.')
+          } else {
+            store.set(state`pointsGeojson`, pointsGeojson);       
+            store.set(state`observations`, observations);
+            store.set(state`currentPage`, 2);
+          }
+        }
       }
     } else {
       store.set(state`error`, 'Select file before continuing.');
