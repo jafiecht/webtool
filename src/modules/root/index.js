@@ -9,6 +9,10 @@ export default {
     shpData: null,
     sampleLocations: null,
     error: null,
+    map: {
+      mapCenter: [],
+      vertices: {},
+    },
   },
   sequences,
 };

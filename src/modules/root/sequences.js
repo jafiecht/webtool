@@ -160,4 +160,42 @@ export const clearError = sequence("clearError", [
 ]);
 
 
+////////////////////////////////////////////////////////////////////////
+//Track the map center
+export const trackMap = sequence("trackMap", [
+  ({store, props}) => {
+    store.set(state`map.mapCenter`, [props.lat, props.lon]);
+  },
+]);
+
+////////////////////////////////////////////////////////////////////////
+//Create new boundary vertex
+export const newVertex = sequence("newVertex", [
+  ({store, get}) => {
+    var mapCenter = get(state`map.mapCenter`);
+    var keys = Object.keys(get(state`map.vertices`));
+    var key = keys.length;
+    store.set(state`map.vertices.${key}`, mapCenter);
+  },
+]);
+
+////////////////////////////////////////////////////////////////////////
+//Reset a boudary vertex location
+export const resetVertex = sequence("resetVertex", [
+  ({store, props}) => {
+    store.set(state`map.vertices.${props.id}`, [props.lat, props.lon]);
+  },
+]);
+
+////////////////////////////////////////////////////////////////////////
+//Remove the last boundary vertex added
+export const removeVertex = sequence("removeVertex", [
+  ({store, get}) => {
+    var keys = Object.keys(get(state`map.vertices`));
+    if (keys.length > 0) {
+      store.unset(state`map.vertices.${Math.max(...keys)}`);
+    }
+  },
+]);
+
 
