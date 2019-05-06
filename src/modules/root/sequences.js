@@ -1,5 +1,5 @@
 import { sequence, state } from 'cerebral';
-import {featureCollection, point} from '@turf/helpers';
+import {featureCollection, point, polygon} from '@turf/helpers';
 import * as turf from '@turf/turf';
 
 ////////////////////////////////////////////////////////////////////////
@@ -159,10 +159,8 @@ export const assembleObservations = sequence("assembleObservations", [
         });
         var pointsGeojson = featureCollection(features);
         var bbox = turf.bboxPolygon(turf.bbox(pointsGeojson));
-        console.log(turf.area(bbox));
-        console.log(turf.length(bbox));
         if (turf.area(bbox) > 258000 || turf.length(bbox) > 6) {
-          store.set(state`error`, 'Points are spread out over too large an area for interpolation.')
+          store.set(state`error`, 'Points are spread out over too large an area.')
         } else {
           if (turf.area(bbox) < 405) {
             store.set(state`error`, 'Point area is too small for interpolation.')
@@ -224,5 +222,43 @@ export const removeVertex = sequence("removeVertex", [
     }
   },
 ]);
+
+////////////////////////////////////////////////////////////////////////
+//Make the boundary into a geojson and validate input.
+export const validateBoundary = sequence("validateBoundary", [
+  ({store, get, props}) => {
+    var vertices = get(state`map.vertices`);
+
+    //Has a file been uploaded?
+		if(Object.keys(vertices).length == 0) {
+      store.set(state`error`, 'No boundary drawn');
+    } else {
+      //Have lat, lon, and interest been chosen?
+		  if(Object.keys(vertices).length < 3) {
+        store.set(state`error`, 'Boundary must consist of at least 3 vertices');
+      } else {
+        var vertexList = [];
+        Object.keys(vertices).forEach((vertex) => {
+          vertexList.push(vertices[vertex]);
+        });
+        vertexList.push(vertices[0]); 
+        var feature = polygon([vertexList]);
+        console.log(turf.area(feature));
+        console.log(turf.length(feature));
+        if (turf.area(feature) > 258000 || turf.length(feature) > 6) {
+          store.set(state`error`, 'Area selected is too large.')
+        } else {
+          if (turf.area(feature) < 405) {
+            store.set(state`error`,'Area selected is too small.')
+          } else {
+            var boundary = featureCollection(feature);
+            store.set(state`boundaryGeojson`, boundary);       
+            store.set(state`currentPage`, 3);
+          }
+        }
+      }
+    }
+  },
+]); 
 
 

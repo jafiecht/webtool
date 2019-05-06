@@ -76,7 +76,7 @@ class Draw extends Component {
           <Button 
             variant='contained' 
             className={classes.button}
-            onClick={() => this.props.changePage({page: 3})}>
+            onClick={() => this.props.validateBoundary()}>
             Submit for Interpolation!
           </Button>
         </Grid>
@@ -90,7 +90,7 @@ export default connect(
     //currentPage: state`currentPage`,
     //mapCenter: state`map.mapCenter`,
 
-    changePage: sequences`changePage`,
+    validateBoundary: sequences`validateBoundary`,
     newVertex: sequences`newVertex`,
     removeVertex: sequences`removeVertex`,
   },
