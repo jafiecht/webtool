@@ -28,6 +28,12 @@ const styles = theme => ({
     paddingTop: theme.spacing.unit,
     paddingBottom: theme.spacing.unit,
   },
+  lastSelect: {
+    paddingLeft: theme.spacing.unit*3,
+    paddingRight: theme.spacing.unit*3,
+    paddingTop: theme.spacing.unit,
+    paddingBottom: theme.spacing.unit*3,
+  },
   text: {
     marginRight: theme.spacing.unit*3,
     marginLeft: theme.spacing.unit*3,
@@ -90,7 +96,7 @@ class CSVContent extends Component {
               </Select>     
             </FormControl>          
           </Grid>
-          <Grid item xs={12} className={classes.select}>
+          <Grid item xs={12} className={classes.lastSelect}>
             <FormControl fullWidth>   
               <InputLabel shrink>Field to Interpolate</InputLabel> 
               <Select
@@ -106,7 +112,7 @@ class CSVContent extends Component {
       </div>
     } else {
       content =
-      <Grid item xs={12}>
+      <Grid item xs={12} justify='center' container>
         <List className={classes.list}> 
           <ReactFileReader 
             fileTypes={".csv"} 

@@ -29,7 +29,7 @@ const styles = theme => ({
     margin: theme.spacing.unit*3,
   },
   button: {
-    margin: theme.spacing.unit*3
+    marginBottom: theme.spacing.unit*3
   },
   radio: {
     marginLeft: theme.spacing.unit*3,
@@ -107,13 +107,13 @@ class Upload extends Component {
 
     return (
       <Paper className={classes.paper}>
-        <Grid container direction='column' justify='center' alignItems='center'>
-          <Grid item xs={12}>
+        <Grid container justify='center' alignItems='center'>
+          <Grid item xs={12} justify='center' container>
             <Typography variant='title' className={classes.title}>
               Upload your soil data
             </Typography>
           </Grid>
-          <Grid item xs={12}>
+          <Grid item xs={12} justify='center' container>
             <FormControl className={classes.radio}>
               <RadioGroup
                 value={this.props.fileType}
@@ -130,8 +130,18 @@ class Upload extends Component {
               </RadioGroup>
             </FormControl>
           </Grid>
-          {content}
-          <Grid item xs={12}>
+          <Grid item xs={12} justify='center' container>
+            {content}
+          </Grid>
+          <Grid item xs={12} sm={6} justify='center' container>
+            <Button 
+              variant='contained' 
+              className={classes.button}
+              onClick={() => {this.props.changePage({page: 0})}}>
+              Back to Welcome
+            </Button>
+          </Grid>
+          <Grid item xs={12} sm={6} justify='center' container>
             <Button 
               variant='contained' 
               className={classes.button}

@@ -3,7 +3,7 @@ import * as sequences from './sequences';
 
 export default {
   state:{
-    currentPage: 1,
+    currentPage: 0,
     fileType: 'csv',
     csvData: null,
     shpData: null,
@@ -12,7 +12,6 @@ export default {
     map: {
       mapCenter: [],
       vertices: {},
-      centroid:[],
     },
     pointsGeojson: null,
   },

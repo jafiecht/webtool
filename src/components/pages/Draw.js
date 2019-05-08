@@ -73,12 +73,24 @@ class Draw extends Component {
               <DrawMap/>
             </div>
           </Grid>
-          <Button 
-            variant='contained' 
-            className={classes.button}
-            onClick={() => this.props.validateBoundary()}>
-            Submit for Interpolation!
-          </Button>
+          <Grid item xs={12}container justify='center' alignItems='center'>
+            <Grid item xs={12} sm={6} justify='center' container>
+              <Button 
+                variant='contained' 
+                className={classes.button}
+                onClick={() => this.props.validateBoundary()}>
+                Submit for Interpolation!
+              </Button>
+            </Grid>
+            <Grid item xs={12} sm={6} justify='center' container>
+              <Button 
+                variant='contained' 
+                className={classes.button}
+                onClick={() => this.props.validateBoundary()}>
+                Submit for Interpolation!
+              </Button>
+            </Grid>
+          </Grid>
         </Grid>
       </Paper>
     );

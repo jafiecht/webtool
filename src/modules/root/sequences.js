@@ -243,17 +243,32 @@ export const validateBoundary = sequence("validateBoundary", [
         });
         vertexList.push(vertices[0]); 
         var feature = polygon([vertexList]);
-        console.log(turf.area(feature));
-        console.log(turf.length(feature));
         if (turf.area(feature) > 258000 || turf.length(feature) > 6) {
           store.set(state`error`, 'Area selected is too large.')
         } else {
           if (turf.area(feature) < 405) {
             store.set(state`error`,'Area selected is too small.')
           } else {
-            var boundary = featureCollection(feature);
-            store.set(state`boundaryGeojson`, boundary);       
-            store.set(state`currentPage`, 3);
+            var points = get(state`pointsGeojson.features`);
+            var inside = true;
+            points.forEach((observation) => {
+              if (!turf.booleanPointInPolygon(observation, feature)) {
+                inside = false;
+              } 
+            });
+            if (!inside) {
+              store.set(state`error`,'All points must be inside boundary.')
+            } else {
+              var crosses = turf.kinks(feature);
+              console.log(crosses);
+              if (crosses.features.length != 0) {
+                store.set(state`error`,'Boundary cannot cross itself.')
+              } else {
+               var boundary = featureCollection(feature);
+               store.set(state`boundaryGeojson`, boundary);       
+               store.set(state`currentPage`, 3);
+              }
+            }
           }
         }
       }
