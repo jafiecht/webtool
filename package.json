@@ -10,6 +10,7 @@
     "@turf/turf": "^5.1.6",
     "cerebral": "^5.1.0",
     "leaflet": "^1.4.0",
+    "local-storage": "^2.0.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-file-reader": "^1.1.4",

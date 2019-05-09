@@ -1,28 +1,25 @@
 import React, { Component } from 'react';
-import { state } from 'cerebral';
+import { state, sequences } from 'cerebral';
 import { connect } from '@cerebral/react';
 import { withStyles } from '@material-ui/core/styles';
-//import MenuBar from './MenuBar.js';
 import Welcome from './pages/Welcome.js';
 import Upload from './pages/Upload.js';
 import Draw from './pages/Draw.js';
 import View from './pages/View.js';
-import Status from './pages/Status.js';
+import Submit from './pages/Submit.js';
 import Error from './Error.js';
-//import Grid from '@material-ui/core/Grid';
-//import Paper from '@material-ui/core/Paper';
 
 const styles = theme => ({
-  toolbar: theme.mixins.toolbar,
-  paper: {
-    margin: theme.spacing.unit*3,
-  }
 });
 
 
 class AppRoot extends Component {
+
+  componentWillMount() {
+    this.props.loadState();
+  }
+
   render() {
-    const{ classes } = this.props;
     return (
       <div>
         {(()=>{
@@ -34,7 +31,7 @@ class AppRoot extends Component {
             case 2: 
               return <Draw/>
             case 3: 
-              return <Status/>
+              return <Submit/>
             case 4: 
               return <View/>
             default:
@@ -49,7 +46,9 @@ class AppRoot extends Component {
 
 export default connect(
   {
-    currentPage: state`currentPage`
+    currentPage: state`currentPage`,
+    
+    loadState: sequences`loadState`,
   },
   withStyles(styles, {withTheme: true})(AppRoot)
 );

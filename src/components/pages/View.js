@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import { state, sequences } from 'cerebral';
 import { connect } from '@cerebral/react';
 import { withStyles } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';

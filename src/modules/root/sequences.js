@@ -1,26 +1,54 @@
 import { sequence, state } from 'cerebral';
 import {featureCollection, point, polygon} from '@turf/helpers';
 import * as turf from '@turf/turf';
+import ls from 'local-storage';
+
 
 ////////////////////////////////////////////////////////////////////////
 //Change the page. Will likely need a rework
 export const changePage = sequence("changePage", [
-  ({store, props}) => {store.set(state`currentPage`, props.page)},
+  ({store, props}) => {
+    store.set(state`currentPage`, props.page)
+    ls(`currentPage`, props.page)
+  },
 ]); 
 
 ////////////////////////////////////////////////////////////////////////
 //Remove existing soil data
 export const deleteSoilData = sequence("deleteSoilData", [
-  ({store}) => {store.set(state`csvData`, null)},
-  ({store}) => {store.set(state`shpData`, null)},
-  ({store}) => {store.set(state`observations`, null)},
-  ({store}) => {store.set(state`pointsGeojson`, null)},
+  ({store}) => {
+    store.set(state`csvData`, {});
+    ls(`csvData`, {});
+    store.set(state`shpData`, {});
+    ls(`shpData`, {});
+    store.set(state`map`, {
+      mapCenter: [],
+      vertices: {},
+      observations: [],
+    });
+    ls(`map`, {
+      mapCenter: [],
+      vertices: {},
+      observations: [],
+    });
+    store.set(state`geojson`, {
+      points: {},
+      boundary: {},
+    });
+    ls(`geojson`, {
+      points: {},
+      boundary: {},
+    });
+  },
 ]);
 
 ////////////////////////////////////////////////////////////////////////
 //Change the type of import file and remove existing data
 export const setFileType = sequence("setFileType", [
-  ({store, props}) => {store.set(state`fileType`, props.type)},
+  ({store, props}) => {
+    store.set(state`fileType`, props.type)
+    ls(`fileType`, props.type)
+  },
   deleteSoilData,
 ]); 
 
@@ -41,7 +69,7 @@ export const loadCSV = sequence("loadCSV", [
       var err = null;
       var length = rows[0].length;
       rows.forEach((row) => {
-        if (row.length != length) {
+        if (row.length !== length) {
           err = 'CSV has invalid shape. Review file and try again.';
         }
       });
@@ -56,9 +84,15 @@ export const loadCSV = sequence("loadCSV", [
         } else {
           store.set(state`csvData`, {
             data: rows,
-            latLabel: null,
-            lonLabel: null,
-            interestLabel: null,
+            latLabel: 'Select Field',
+            lonLabel: 'Select Field',
+            interestLabel: 'Select Field',
+          });
+          ls(`csvData`, {
+            data: rows,
+            latLabel: 'Select Field',
+            lonLabel: 'Select Field',
+            interestLabel: 'Select Field',
           });
         };
       }
@@ -83,7 +117,8 @@ export const setLat = sequence("setLat", [
     if (err) {
       store.set(state`error`, err);
     } else {
-      store.set(state`csvData.latLabel`, props.lat)
+      store.set(state`csvData.latLabel`, props.lat);
+      ls(`csvData`, get(state`csvData`));
     }
   },
 ]); 
@@ -105,6 +140,7 @@ export const setLon = sequence("setLon", [
       store.set(state`error`, err);
     } else {
       store.set(state`csvData.lonLabel`, props.lon)
+      ls(`csvData`, get(state`csvData`));
     }
   },
 ]); 
@@ -126,6 +162,7 @@ export const setInterest = sequence("setInterest", [
       store.set(state`error`, err);
     } else {
       store.set(state`csvData.interestLabel`, props.interest)
+      ls(`csvData`, get(state`csvData`));
     }
   },
 ]); 
@@ -138,9 +175,9 @@ export const assembleObservations = sequence("assembleObservations", [
     var csvData = get(state`csvData`);
 
     //Has a file been uploaded?
-		if(csvData) {
+		if(Object.keys(csvData).length > 0) {
       //Have lat, lon, and interest been chosen?
-      if(csvData.latLabel == null || csvData.lonLabel == null || csvData.interestLabel == null) {
+      if(csvData.latLabel === 'Select Field' || csvData.lonLabel === 'Select Field' || csvData.interestLabel === 'Select Field') {
         store.set(state`error`, 'Latitude, Longitude, and Field to Interpolate are required fields. Select before continuing.');
       } else {
         var latIndex = csvData.data[0].indexOf(csvData.latLabel);
@@ -165,9 +202,12 @@ export const assembleObservations = sequence("assembleObservations", [
           if (turf.area(bbox) < 405) {
             store.set(state`error`, 'Point area is too small for interpolation.')
           } else {
-            store.set(state`pointsGeojson`, pointsGeojson);       
-            store.set(state`observations`, observations);
+            store.set(state`geojson.points`, pointsGeojson);       
+            ls(`geojson`, get(state`geojson`));       
+            store.set(state`map.observations`, observations);
+            ls(`map`, get(state`map`));
             store.set(state`currentPage`, 2);
+            ls(`currentPage`, 2);
           }
         }
       }
@@ -188,8 +228,9 @@ export const clearError = sequence("clearError", [
 ////////////////////////////////////////////////////////////////////////
 //Track the map center
 export const trackMap = sequence("trackMap", [
-  ({store, props}) => {
+  ({store, get, props}) => {
     store.set(state`map.mapCenter`, [props.lat, props.lon]);
+    ls(`map`, get(state`map`));
   },
 ]);
 
@@ -201,14 +242,16 @@ export const newVertex = sequence("newVertex", [
     var keys = Object.keys(get(state`map.vertices`));
     var key = keys.length;
     store.set(state`map.vertices.${key}`, mapCenter);
+    ls(`map`, get(state`map`));
   },
 ]);
 
 ////////////////////////////////////////////////////////////////////////
 //Reset a boudary vertex location
 export const resetVertex = sequence("resetVertex", [
-  ({store, props}) => {
+  ({store, get, props}) => {
     store.set(state`map.vertices.${props.id}`, [props.lat, props.lon]);
+    ls(`map`, get(state`map`));
   },
 ]);
 
@@ -219,6 +262,7 @@ export const removeVertex = sequence("removeVertex", [
     var keys = Object.keys(get(state`map.vertices`));
     if (keys.length > 0) {
       store.unset(state`map.vertices.${Math.max(...keys)}`);
+      ls(`map`, get(state`map`));
     }
   },
 ]);
@@ -230,7 +274,7 @@ export const validateBoundary = sequence("validateBoundary", [
     var vertices = get(state`map.vertices`);
 
     //Has a file been uploaded?
-		if(Object.keys(vertices).length == 0) {
+		if(Object.keys(vertices).length === 0) {
       store.set(state`error`, 'No boundary drawn');
     } else {
       //Have lat, lon, and interest been chosen?
@@ -249,7 +293,7 @@ export const validateBoundary = sequence("validateBoundary", [
           if (turf.area(feature) < 405) {
             store.set(state`error`,'Area selected is too small.')
           } else {
-            var points = get(state`pointsGeojson.features`);
+            var points = get(state`geojson.points.features`);
             var inside = true;
             points.forEach((observation) => {
               if (!turf.booleanPointInPolygon(observation, feature)) {
@@ -260,13 +304,14 @@ export const validateBoundary = sequence("validateBoundary", [
               store.set(state`error`,'All points must be inside boundary.')
             } else {
               var crosses = turf.kinks(feature);
-              console.log(crosses);
-              if (crosses.features.length != 0) {
+              if (crosses.features.length !== 0) {
                 store.set(state`error`,'Boundary cannot cross itself.')
               } else {
                var boundary = featureCollection(feature);
-               store.set(state`boundaryGeojson`, boundary);       
+               store.set(state`geojson.boundary`, boundary);       
+               ls(`geojson`, get(state`geojson`));       
                store.set(state`currentPage`, 3);
+               ls('currentPage', 3);
               }
             }
           }
@@ -277,3 +322,51 @@ export const validateBoundary = sequence("validateBoundary", [
 ]); 
 
 
+////////////////////////////////////////////////////////////////////////
+//Submit the interpolation request
+export const submitRequest = sequence("submitRequest", [
+  ({store, get, props}) => {
+    console.log('request', get(state`email`));
+  },
+]);
+
+
+////////////////////////////////////////////////////////////////////////
+//Submit the interpolation request
+export const updateEmail = sequence("updateEmail", [
+  ({store, props}) => {
+    store.set(state`request.email`, props.email);
+  },
+]);
+
+
+////////////////////////////////////////////////////////////////////////
+//Load data from local storage
+export const loadState = sequence("LoadState", [
+  ({store}) => {
+
+    if(ls('currentPage') !== null) {
+      store.set(state`currentPage`, ls('currentPage'));
+    }
+
+    if(ls('fileType') !== null) {
+      store.set(state`fileType`, ls('fileType'));
+    }
+
+    if(ls('csvData') !== null) {
+      store.set(state`csvData`, ls('csvData'));
+    }
+
+    if(ls('shpData') !== null) {
+      store.set(state`shpData`, ls('shpData'));
+    }
+
+    if(ls('map') !== null) {
+      store.set(state`map`, ls('map'));
+    }
+
+    if(ls('geojson') !== null) {
+      store.set(state`geojson`, ls('geojson'));
+    }
+  },
+]);

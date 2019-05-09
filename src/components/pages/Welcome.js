@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import { state, sequences } from 'cerebral';
 import { connect } from '@cerebral/react';
 import { withStyles } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 //import IconButton from '@material-ui/core/IconButton';
@@ -35,34 +33,34 @@ class Welcome extends Component {
     const{ classes } = this.props;
     return (
       <Paper className={classes.paper}>
-      <Grid container direction='row' justify='center' alignItems='center'>
-        <Grid item xs={12} justify='center' alignContent='center' container>
-          <Typography variant='title'  className={classes.title}>
-            Welcome!
-          </Typography>
+        <Grid container justify='center' alignItems='center'>
+          <Grid item xs={12} justify='center' alignContent='center' container>
+            <Typography variant='title'  className={classes.title}>
+              Welcome!
+            </Typography>
+          </Grid>
+          <Grid item xs={12}>
+            <Typography className={classes.text} align='center'>
+              {"High quality soil maps are the lifeblood of Precision Agriculture. You've taken great pains to ensure your soil samples are accurate, so why settle for any less in interpolation? This webtool uses state-of-the-art Machine Learning and high quality elevation data to make the most accurate interpolation possible."}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} sm={6} justify='center' container>
+            <Button 
+              variant='contained' 
+              className={classes.button}
+              onClick={() => this.props.changePage({page: 3})}>
+              Check Order Status
+            </Button>
+          </Grid>
+          <Grid item xs={12} sm={6} justify='center' container>
+            <Button 
+              variant='contained' 
+              className={classes.button}
+              onClick={() => this.props.changePage({page: 1})}>
+              Upload Soil Data
+            </Button>
+          </Grid>
         </Grid>
-        <Grid item xs={12}>
-          <Typography className={classes.text} align='center'>
-            {"High quality soil maps are the lifeblood of Precision Agriculture. You've taken great pains to ensure your soil samples are accurate, so why settle for any less in interpolation? This webtool uses state-of-the-art Machine Learning and high quality elevation data to make the most accurate interpolation possible."}
-          </Typography>
-        </Grid>
-        <Grid item xs={12} sm={6} justify='center' container>
-          <Button 
-            variant='contained' 
-            className={classes.button}
-            onClick={() => this.props.changePage({page: 3})}>
-            Check Order Status
-          </Button>
-        </Grid>
-        <Grid item xs={12} sm={6} justify='center' container>
-          <Button 
-            variant='contained' 
-            className={classes.button}
-            onClick={() => this.props.changePage({page: 1})}>
-            Upload Soil Data
-          </Button>
-        </Grid>
-      </Grid>
       </Paper>
     );
   }

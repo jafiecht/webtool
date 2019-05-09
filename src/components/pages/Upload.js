@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { state, sequences } from 'cerebral';
-import ReactFileReader from 'react-file-reader';
 import { connect } from '@cerebral/react';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
@@ -44,7 +43,7 @@ class Upload extends Component {
     const{ classes } = this.props;
 
     var content;
-    if (this.props.fileType=='csv') {
+    if (this.props.fileType==='csv') {
       content = <CSVContent/>;
     } else {
       content =
@@ -102,9 +101,6 @@ class Upload extends Component {
         </Grid>
     }
 
-    const csv = <Typography>CSV File</Typography>
-      
-
     return (
       <Paper className={classes.paper}>
         <Grid container justify='center' alignItems='center'>
@@ -157,14 +153,11 @@ class Upload extends Component {
 
 export default connect(
   {
-    //currentPage: state`currentPage`,
     fileType: state`fileType`,
 
     changePage: sequences`changePage`,
     setFileType: sequences`setFileType`,
     assembleObservations: sequences`assembleObservations`,
-    //loadCSV: sequences`loadCSV`,
-    //deleteCSV: sequences`deleteCSV`
   },
   withStyles(styles, {withTheme: true})(Upload)
 );

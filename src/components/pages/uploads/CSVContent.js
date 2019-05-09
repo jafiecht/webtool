@@ -50,7 +50,7 @@ class CSVContent extends Component {
     const{ classes } = this.props;
 
     var content;
-    if (this.props.csvData) {
+    if (Object.keys(this.props.csvData).length > 0) {
       content =
       <div>
         <Grid item xs={12} className={classes.root}>
@@ -130,8 +130,6 @@ class CSVContent extends Component {
       </Grid>
     }
 
-    const csv = <Typography>CSV File</Typography>
-      
 
     return (
       <div>

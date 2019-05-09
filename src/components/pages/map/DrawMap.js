@@ -3,7 +3,7 @@ import { state, sequences } from 'cerebral';
 import { connect } from '@cerebral/react';
 import { withStyles } from '@material-ui/core/styles';
 import uuid from 'uuid';
-import Leaflet from 'leaflet';
+//import Leaflet from 'leaflet';
 import { Map, TileLayer, CircleMarker, Marker, Polyline, Polygon} from 'react-leaflet';
 
 const styles = theme => ({
@@ -70,25 +70,25 @@ class DrawMap extends Component {
 
     //Boundary line if only 2 markers
     var boundaryLine = []
-    if (Object.keys(this.props.vertices).length == 2) {
+    if (Object.keys(this.props.vertices).length === 2) {
       var endpoints = []; 
       Object.keys(this.props.vertices).forEach((objectKey) => {
         endpoints.push(this.props.vertices[objectKey]);
       });
       boundaryLine.push(
-      <Polyline positions={endpoints}/>
+      <Polyline key={uuid.v4} positions={endpoints}/>
       );
     }
 
     //Boundary polygon if more than two markers
     var boundary = []
     if (Object.keys(this.props.vertices).length > 2) {
-      var endpoints = []; 
+      var corners = []; 
       Object.keys(this.props.vertices).forEach((objectKey) => {
-        endpoints.push(this.props.vertices[objectKey]);
+        corners.push(this.props.vertices[objectKey]);
       });
       boundary.push(
-      <Polygon positions={endpoints}/>
+      <Polygon key={uuid.v4} positions={corners}/>
       );
     }
 
@@ -114,7 +114,7 @@ class DrawMap extends Component {
 
 export default connect(
   {
-    observations: state`observations`,
+    observations: state`map.observations`,
     vertices: state`map.vertices`,
 
     trackMap: sequences`trackMap`,

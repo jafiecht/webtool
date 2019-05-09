@@ -5,15 +5,18 @@ export default {
   state:{
     currentPage: 0,
     fileType: 'csv',
-    csvData: null,
-    shpData: null,
-    sampleLocations: null,
+    csvData: {},
+    shpData: {},
     error: null,
     map: {
       mapCenter: [],
       vertices: {},
+      observations:[],
     },
-    pointsGeojson: null,
+    geojson: {
+      points: {},
+      boundary: {},
+    },
   },
   sequences,
 };

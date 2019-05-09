@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { state, sequences } from 'cerebral';
+import { sequences } from 'cerebral';
 import { connect } from '@cerebral/react';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
@@ -78,8 +78,8 @@ class Draw extends Component {
               <Button 
                 variant='contained' 
                 className={classes.button}
-                onClick={() => this.props.validateBoundary()}>
-                Submit for Interpolation!
+                onClick={() => this.props.changePage({page: 1})}>
+                Back to Upload
               </Button>
             </Grid>
             <Grid item xs={12} sm={6} justify='center' container>
@@ -87,7 +87,7 @@ class Draw extends Component {
                 variant='contained' 
                 className={classes.button}
                 onClick={() => this.props.validateBoundary()}>
-                Submit for Interpolation!
+                Interpolate
               </Button>
             </Grid>
           </Grid>
@@ -104,6 +104,7 @@ export default connect(
 
     validateBoundary: sequences`validateBoundary`,
     newVertex: sequences`newVertex`,
+    changePage: sequences`changePage`,
     removeVertex: sequences`removeVertex`,
   },
   withStyles(styles, {withTheme: true})(Draw)

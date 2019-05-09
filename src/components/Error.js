@@ -15,11 +15,10 @@ const styles = theme => ({
 
 class Error extends Component {
   render() {
-    const{ classes } = this.props;
   
     var newError = false;
     if (this.props.error != null) {
-      var newError = true;
+      newError = true;
     }
    
     return (
