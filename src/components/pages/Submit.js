@@ -18,7 +18,9 @@ const styles = theme => ({
     padding: theme.spacing.unit*3,
   },
   title: {
-    marginTop: theme.spacing.unit*3
+    marginTop: theme.spacing.unit*3,
+    marginLeft: theme.spacing.unit*3,
+    marginRight: theme.spacing.unit*3
   },
   button: {
     marginBottom: theme.spacing.unit*3
@@ -43,7 +45,7 @@ class Submit extends Component {
       <Paper className={classes.paper}>
         <Grid container justify='center'>
           <Grid item xs={12} justify='center' container>
-            <Typography variant='title' className={classes.title}>
+            <Typography variant='title' align='center' className={classes.title}>
               Submit for Interpolation
             </Typography>
           </Grid>
@@ -57,7 +59,6 @@ class Submit extends Component {
               className={classes.input}
               label="Enter Email"
               id='email'
-              value={this.props.email}
               onChange={this.handleChange}
               InputProps={{
                 startAdornment: (
@@ -80,7 +81,7 @@ class Submit extends Component {
             <Button 
               variant='contained' 
               className={classes.button}
-              onClick={this.props.submitRequest()}>
+              onClick={() => this.props.submitRequest()}>
               Submit
             </Button>
           </Grid>

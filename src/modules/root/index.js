@@ -17,6 +17,7 @@ export default {
       points: {},
       boundary: {},
     },
+    request: {},
   },
   sequences,
 };

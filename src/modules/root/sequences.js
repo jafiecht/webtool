@@ -326,7 +326,13 @@ export const validateBoundary = sequence("validateBoundary", [
 //Submit the interpolation request
 export const submitRequest = sequence("submitRequest", [
   ({store, get, props}) => {
-    console.log('request', get(state`email`));
+    console.log('request', get(state`request.email`));
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(get(state`request.email`))) {
+      store.set(state`currentPage`, 4);
+      ls('currentPage', 4); 
+    } else {
+      store.set(state`error`,'Please enter a valid email address.')
+    };
   },
 ]);
 
