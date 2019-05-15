@@ -48,7 +48,7 @@ class Welcome extends Component {
             <Button 
               variant='contained' 
               className={classes.button}
-              onClick={() => this.props.changePage({page: 3})}>
+              onClick={() => this.props.changePage({page: 4})}>
               Check Order Status
             </Button>
           </Grid>

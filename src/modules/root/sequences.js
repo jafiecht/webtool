@@ -2,7 +2,10 @@ import { sequence, state } from 'cerebral';
 import {featureCollection, point, polygon} from '@turf/helpers';
 import * as turf from '@turf/turf';
 import ls from 'local-storage';
+import axios from 'axios';
 
+
+var serverUrl = 'http://localhost:5000/'
 
 ////////////////////////////////////////////////////////////////////////
 //Change the page. Will likely need a rework
@@ -326,10 +329,26 @@ export const validateBoundary = sequence("validateBoundary", [
 //Submit the interpolation request
 export const submitRequest = sequence("submitRequest", [
   ({store, get, props}) => {
-    console.log('request', get(state`request.email`));
     if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(get(state`request.email`))) {
-      store.set(state`currentPage`, 4);
-      ls('currentPage', 4); 
+
+      axios({
+        method: 'post',
+        url: serverUrl + 'submit',
+        data: {
+          userEmail: get(state`request.email`),
+          points: get(state`geojson.points`),
+          boundary: get(state`geojson.boundary`),
+        },
+      }).then((response) => {
+          store.set(state`currentPage`, 4);
+          store.set(state`request.id`, response.data.id);
+          store.unset(state`request.email`);
+          ls('currentPage', 4);
+        } 
+      ).catch((err) => {
+          store.set(state`error`,'A server error has occured. Please re-submit your request at another time.');
+        }
+      );
     } else {
       store.set(state`error`,'Please enter a valid email address.')
     };
@@ -338,12 +357,82 @@ export const submitRequest = sequence("submitRequest", [
 
 
 ////////////////////////////////////////////////////////////////////////
-//Submit the interpolation request
+//Update user email as user inputs email
 export const updateEmail = sequence("updateEmail", [
   ({store, props}) => {
     store.set(state`request.email`, props.email);
   },
 ]);
+
+
+////////////////////////////////////////////////////////////////////////
+//Update request ID as user inputs id
+export const updateInputID = sequence("updateInputID", [
+  ({store, props}) => {
+    store.set(state`request.inputID`, props.id);
+  },
+]);
+
+////////////////////////////////////////////////////////////////////////
+//Clear last request id and reset page
+export const newRequest = sequence("newRequest", [
+  ({store, props}) => {
+    store.unset(state`request.inputID`);
+    store.unset(state`request.id`);
+    store.set(state`currentPage`, 1);
+    ls('currentPage', 1)
+  },
+]);
+
+
+////////////////////////////////////////////////////////////////////////
+//Check the status of a request
+export const checkStatus = sequence("checkStatus", [
+  ({store, get}) => {
+    if (get(state`request.inputID`)) {
+
+      axios.get(serverUrl + 'status', {
+        params: {
+          id: get(state`request.inputID`),
+        },
+      }).then((response) => {
+          store.set(state`request.status`, response.data.status);
+        } 
+      ).catch((err) => {
+          store.set(state`error`,'A server error has occured. Please check status at another time.');
+        }
+      );
+    } else {
+      store.set(state`error`,'Please enter a request id.')
+    };
+  },
+]);
+
+
+////////////////////////////////////////////////////////////////////////
+//Get the data from a request and switch to visualization.
+export const retrieveData = sequence("retrieveData", [
+  ({store, get}) => {
+    if (get(state`request.inputID`) && get(state`request.status`) === 'complete') {
+    
+      axios.get(serverUrl + 'output', {
+        params: {
+          id: get(state`request.inputID`),
+        },
+      }).then((response) => {
+          console.log('success!')
+          //store.set(state`request.status`, response.data.status);
+        } 
+      ).catch((err) => {
+          store.set(state`error`,'A server error has occured. Please attempt to view data at another time.');
+        }
+      );
+    } else {
+      store.set(state`error`,'An error occured before the data could be retrieved.')
+    };
+  },
+]);
+
 
 
 ////////////////////////////////////////////////////////////////////////

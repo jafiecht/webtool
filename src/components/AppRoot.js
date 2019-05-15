@@ -6,6 +6,7 @@ import Welcome from './pages/Welcome.js';
 import Upload from './pages/Upload.js';
 import Draw from './pages/Draw.js';
 import View from './pages/View.js';
+import Status from './pages/Status.js';
 import Submit from './pages/Submit.js';
 import Error from './Error.js';
 
@@ -33,6 +34,8 @@ class AppRoot extends Component {
             case 3: 
               return <Submit/>
             case 4: 
+              return <Status/>
+            case 5: 
               return <View/>
             default:
               return <Welcome/> 
