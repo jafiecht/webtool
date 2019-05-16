@@ -1,46 +1,84 @@
 import React, { Component } from 'react';
-import { state, sequences } from 'cerebral';
+import { sequences } from 'cerebral';
 import { connect } from '@cerebral/react';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
+import ResultsMap from './map/ResultsMap.js';
 
 const styles = theme => ({
   paper: {
     margin: theme.spacing.unit*3,
   },
-  text: {
-    padding: theme.spacing.unit*3,
-  },
   title: {
-    marginTop: theme.spacing.unit*3
+    marginTop: theme.spacing.unit*3,
+    marginLeft: theme.spacing.unit*3,
+    marginRight: theme.spacing.unit*3,
+  },
+  text: {
+    marginTop: theme.spacing.unit,
+    marginLeft: theme.spacing.unit*3,
+    marginRight: theme.spacing.unit*3,
   },
   button: {
     marginBottom: theme.spacing.unit*3
   },
+  mapGridItem: {
+    width: '100%'
+  },
+  mapContainer: {
+    position: 'relative',
+    display: 'flex',
+    width: '100%',
+    height: '65vh',
+  },
 });
 
 
-class Upload extends Component {
+class Draw extends Component {
+
+
   render() {
     const{ classes } = this.props;
+
     return (
       <Paper className={classes.paper}>
-        <Grid container justify='center'>
-          <Typography variant='title' className={classes.title}>
-            View your prediction
-          </Typography>
-          <Typography className={classes.text}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Rhoncus dolor purus non enim praesent elementum facilisis leo vel. Risus at ultrices mi tempus imperdiet. Semper risus in hendrerit gravida rutrum quisque non tellus. Convallis convallis tellus id interdum velit laoreet id donec ultrices. Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra nibh cras. Metus vulputate eu scelerisque felis imperdiet proin fermentum leo. Mauris commodo quis imperdiet massa tincidunt. Cras tincidunt lobortis feugiat vivamus at augue. At augue eget arcu dictum varius duis at consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem donec massa sapien faucibus et molestie ac.
-          </Typography>
-          <Button 
-            variant='contained' 
-            className={classes.button}
-            onClick={() => this.props.changePage({page: 0})}>
-            Submit another request
-          </Button>
+        <Grid container direction='column' justify='center' alignItems='center'>
+          <Grid item xs={12}>
+            <Typography variant='title' className={classes.title}>
+              Interpolation Results
+            </Typography>
+          </Grid>
+          <Grid item xs={12}>
+            <Typography className={classes.text}>
+              All results are in WGS84
+            </Typography>
+          </Grid>
+          <Grid item xs={12} className={classes.mapGridItem}>
+            <div className={classes.mapContainer}>
+              <ResultsMap/>
+            </div>
+          </Grid>
+          <Grid item xs={12}container justify='center' alignItems='center'>
+            <Grid item xs={12} sm={6} justify='center' container>
+              <Button 
+                variant='contained' 
+                className={classes.button}
+                onClick={() => this.props.changePage({page: 0})}>
+                Back to Home Page
+              </Button>
+            </Grid>
+            <Grid item xs={12} sm={6} justify='center' container>
+              <Button 
+                variant='contained' 
+                className={classes.button}
+                onClick={() => this.props.download()}>
+                Download Interpolation
+              </Button>
+            </Grid>
+          </Grid>
         </Grid>
       </Paper>
     );
@@ -49,9 +87,14 @@ class Upload extends Component {
 
 export default connect(
   {
-    currentPage: state`currentPage`,
+    //currentPage: state`currentPage`,
+    //mapCenter: state`map.mapCenter`,
 
-    changePage: sequences`changePage`
+    validateBoundary: sequences`validateBoundary`,
+    newVertex: sequences`newVertex`,
+    changePage: sequences`changePage`,
+    removeVertex: sequences`removeVertex`,
+    download: sequences`download`,
   },
-  withStyles(styles, {withTheme: true})(Upload)
+  withStyles(styles, {withTheme: true})(Draw)
 );

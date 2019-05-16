@@ -3,7 +3,7 @@ import {featureCollection, point, polygon} from '@turf/helpers';
 import * as turf from '@turf/turf';
 import ls from 'local-storage';
 import axios from 'axios';
-
+import FileDownload from 'js-file-download';
 
 var serverUrl = 'http://localhost:5000/'
 
@@ -397,6 +397,17 @@ export const checkStatus = sequence("checkStatus", [
         },
       }).then((response) => {
           store.set(state`request.status`, response.data.status);
+          if (response.data.status === 'complete') {
+            if (response.data.tiffp  && response.data.jpgfp && response.data.bounds) {
+              store.set(state`request.tifPath`, serverUrl + response.data.tiffp);
+              store.set(state`request.jpgPath`, serverUrl + response.data.jpgfp);
+              store.set(state`request.bounds`, response.data.bounds);
+            } else {
+              store.unset(state`request.status`);
+              store.set(state`error`,'A server error has occured. Please check status at another time.');
+            }
+          }
+          
         } 
       ).catch((err) => {
           store.set(state`error`,'A server error has occured. Please check status at another time.');
@@ -408,23 +419,30 @@ export const checkStatus = sequence("checkStatus", [
   },
 ]);
 
+////////////////////////////////////////////////////////////////////////
+//Change the page to view data without saving locally
+export const viewData = sequence("viewData", [
+  ({store, props}) => {
+    store.set(state`currentPage`, 5)
+  },
+]); 
+
+
 
 ////////////////////////////////////////////////////////////////////////
-//Get the data from a request and switch to visualization.
-export const retrieveData = sequence("retrieveData", [
+//Let the user download the .tif file from the server.
+export const download = sequence("download", [
   ({store, get}) => {
-    if (get(state`request.inputID`) && get(state`request.status`) === 'complete') {
-    
-      axios.get(serverUrl + 'output', {
-        params: {
-          id: get(state`request.inputID`),
-        },
-      }).then((response) => {
-          console.log('success!')
+    if (get(state`request.tifPath`)) {
+      downloads.download(get(state`request.tifPath`));
+      axios.get(get(state`request.tifPath`))
+       .then((response) => {
+          //FileDownload(response.data, 'interpolation.tif');
+          console.log(response);
           //store.set(state`request.status`, response.data.status);
         } 
       ).catch((err) => {
-          store.set(state`error`,'A server error has occured. Please attempt to view data at another time.');
+          store.set(state`error`,'A server error has occured. Please attempt to download data at another time.');
         }
       );
     } else {

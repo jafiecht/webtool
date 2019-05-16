@@ -107,7 +107,7 @@ class Status extends Component {
           <Button 
             variant='contained' 
             className={classes.button}
-            onClick={() => this.props.retrieveData()}>
+            onClick={() => this.props.viewData()}>
             View Results
           </Button>
         </Grid>
@@ -184,7 +184,8 @@ export default connect(
     newRequest: sequences`newRequest`,
     updateInputID: sequences`updateInputID`,
     checkStatus: sequences`checkStatus`,
-    retrieveData: sequences`retrieveData`,
+    changePage: sequences`changePage`,
+    viewData: sequences`viewData`,
   },
   withStyles(styles, {withTheme: true})(Status)
 );
