@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { sequences } from 'cerebral';
+import { state, sequences } from 'cerebral';
 import { connect } from '@cerebral/react';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
@@ -66,15 +66,15 @@ class Draw extends Component {
               <Button 
                 variant='contained' 
                 className={classes.button}
-                onClick={() => this.props.changePage({page: 0})}>
+                onClick={() => this.props.backToWelcome()}>
                 Back to Home Page
               </Button>
             </Grid>
             <Grid item xs={12} sm={6} justify='center' container>
               <Button 
                 variant='contained' 
-                className={classes.button}
-                onClick={() => this.props.download()}>
+                href={this.props.tifPath}
+                className={classes.button}>
                 Download Interpolation
               </Button>
             </Grid>
@@ -88,13 +88,12 @@ class Draw extends Component {
 export default connect(
   {
     //currentPage: state`currentPage`,
-    //mapCenter: state`map.mapCenter`,
+    tifPath: state`request.tifPath`,
 
     validateBoundary: sequences`validateBoundary`,
     newVertex: sequences`newVertex`,
-    changePage: sequences`changePage`,
+    backToWelcome: sequences`backToWelcome`,
     removeVertex: sequences`removeVertex`,
-    download: sequences`download`,
   },
   withStyles(styles, {withTheme: true})(Draw)
 );

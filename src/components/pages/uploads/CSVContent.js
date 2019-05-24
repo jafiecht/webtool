@@ -69,7 +69,7 @@ class CSVContent extends Component {
           </Grid>
           <Grid item xs={12}>
             <Typography className={classes.text}>
-              Select .csv Latitude and Longtitude fields. Coordinates assumed to be WGS84.
+              Select .csv Latitude, Longtitude and Property fields.
             </Typography>
           </Grid>
           <Grid item xs={12} className={classes.select}>

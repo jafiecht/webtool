@@ -4,6 +4,7 @@ import * as turf from '@turf/turf';
 import ls from 'local-storage';
 import axios from 'axios';
 import FileDownload from 'js-file-download';
+var shapefile = require('shapefile');
 
 var serverUrl = 'http://localhost:5000/'
 
@@ -169,6 +170,65 @@ export const setInterest = sequence("setInterest", [
     }
   },
 ]); 
+
+
+////////////////////////////////////////////////////////////////////////
+//Read in a shapefile
+export const loadShp = sequence("loadShp", [
+  ({store, props, get}) => {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var text = reader.result;
+      store.set(state`shpData.rawShp`, text);
+      //ls(`shpData`, {
+        //rawShp: text,
+        //rawDbf: get(state`shpData.rawDbf`),
+        //latLabel: 'Select Field',
+        //lonLabel: 'Select Field',
+        //interestLabel: 'Select Field',
+      //});
+    }
+    reader.readAsText(props.file[0]);
+  },
+]);
+
+////////////////////////////////////////////////////////////////////////
+//Delete shapefile
+export const deleteShp = sequence("deleteShp", [
+  ({store}) => {
+    store.unset(state`shpData.rawShp`);
+    store.unset(state`shpData.rawDbf`);
+  }
+]);
+
+
+////////////////////////////////////////////////////////////////////////
+//Read in a .dbf file
+export const loadDbf = sequence("loadDbf", [
+  ({store, props, get}) => {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var text = reader.result;
+      store.set(state`shpData.rawDbf`, text);
+      //ls(`shpData`, {
+        //rawShp: get(state`shpData.rawShp`),
+        //rawDbf: text,
+        //latLabel: 'Select Field',
+        //lonLabel: 'Select Field',
+        //interestLabel: 'Select Field',
+      //});
+    }
+    reader.readAsText(props.file[0]);
+    shapefile.open(get(state`shpData.rawShp`), get(state`shpData.rawDbf`))
+      .then(source => source.read()
+        .then(function log(result) {
+          if (result.done) return;
+          console.log(result.value);
+          return source.read().then(log);
+        }))
+      .catch(error => console.error(error.stack));
+  },
+]);
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -428,29 +488,15 @@ export const viewData = sequence("viewData", [
 ]); 
 
 
-
 ////////////////////////////////////////////////////////////////////////
-//Let the user download the .tif file from the server.
-export const download = sequence("download", [
-  ({store, get}) => {
-    if (get(state`request.tifPath`)) {
-      downloads.download(get(state`request.tifPath`));
-      axios.get(get(state`request.tifPath`))
-       .then((response) => {
-          //FileDownload(response.data, 'interpolation.tif');
-          console.log(response);
-          //store.set(state`request.status`, response.data.status);
-        } 
-      ).catch((err) => {
-          store.set(state`error`,'A server error has occured. Please attempt to download data at another time.');
-        }
-      );
-    } else {
-      store.set(state`error`,'An error occured before the data could be retrieved.')
-    };
+//Change the page to view data without saving locally
+export const backToWelcome = sequence("backToWelcome", [
+  ({store, props}) => {
+    store.set(state`currentPage`, 0)
+    ls('currentPage', 0)
+    store.set(state`request`, {})
   },
-]);
-
+]); 
 
 
 ////////////////////////////////////////////////////////////////////////

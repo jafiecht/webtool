@@ -4,21 +4,14 @@ import { connect } from '@cerebral/react';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import CloudUploadIcon from '@material-ui/icons/CloudUpload';
-import DeleteIcon from '@material-ui/icons/Delete';
 import CSVContent from './uploads/CSVContent.js';
+import ShpContent from './uploads/ShpContent.js';
 
 const styles = theme => ({
   title: {
@@ -46,59 +39,7 @@ class Upload extends Component {
     if (this.props.fileType==='csv') {
       content = <CSVContent/>;
     } else {
-      content =
-        <Grid item xs={12}>
-          <List> 
-            <ListItem button>
-              <ListItemIcon>
-                <CloudUploadIcon/>
-              </ListItemIcon>
-              <ListItemText
-                primary="Upload .shp file"/>
-              <ListItemSecondaryAction>
-                <IconButton>
-                  <DeleteIcon/>
-                </IconButton>
-              </ListItemSecondaryAction>
-            </ListItem>
-            <ListItem button>
-              <ListItemIcon>
-                <CloudUploadIcon/>
-              </ListItemIcon>
-              <ListItemText
-                primary="Upload .shx file"/>
-              <ListItemSecondaryAction>
-                <IconButton>
-                  <DeleteIcon/>
-                </IconButton>
-              </ListItemSecondaryAction>
-            </ListItem>
-            <ListItem button>
-              <ListItemIcon>
-                <CloudUploadIcon/>
-              </ListItemIcon>
-              <ListItemText
-                primary="Upload .dbf file"/>
-              <ListItemSecondaryAction>
-                <IconButton>
-                  <DeleteIcon/>
-                </IconButton>
-              </ListItemSecondaryAction>
-            </ListItem>
-            <ListItem button>
-              <ListItemIcon>
-                <CloudUploadIcon/>
-              </ListItemIcon>
-              <ListItemText
-                primary="Upload .prj file"/>
-              <ListItemSecondaryAction>
-                <IconButton>
-                  <DeleteIcon/>
-                </IconButton>
-              </ListItemSecondaryAction>
-            </ListItem>
-          </List>
-        </Grid>
+      content = <ShpContent/>;
     }
 
     return (
@@ -125,6 +66,11 @@ class Upload extends Component {
                   control={<Radio/>}/>
               </RadioGroup>
             </FormControl>
+          </Grid>
+          <Grid item xs={12} justify='center' container>
+            <Typography align='center'>
+              All data assumed to be in WGS84 coordinates
+            </Typography>
           </Grid>
           <Grid item xs={12} justify='center' container>
             {content}
