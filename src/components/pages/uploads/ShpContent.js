@@ -16,10 +16,6 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import InputLabel from '@material-ui/core/InputLabel';
-//import { Dashboard } from '@uppy/react';
-//import Uppy from '@uppy/core';
-//import '@uppy/core/dist/style.css';
-//import '@uppy/dashboard/dist/style.css';
 
 
 const styles = theme => ({
@@ -27,7 +23,7 @@ const styles = theme => ({
     marginLeft: theme.spacing.unit*3,
     marginRight: theme.spacing.unit*3
   },
-  lastSelect: {
+  select: {
     paddingLeft: theme.spacing.unit*3,
     paddingRight: theme.spacing.unit*3,
     paddingTop: theme.spacing.unit,
@@ -93,60 +89,23 @@ class ShpContent extends Component {
         </ReactFileReader>
     }      
 
-    var content;
-    if(false) {
-      content =
+    var propertySelect;
+    if(this.props.shpData.geojson) {
+      propertySelect =
       <div>
         <Grid item xs={12} className={classes.root}>
-          <Grid container justify='center'>
-            <List className={classes.list}>
-              <ListItem
-                button
-                onClick={() => this.props.deleteSoilData()}>
-                <ListItemIcon>
-                  <DeleteIcon/>
-                </ListItemIcon>
-                <ListItemText
-                  primary="Delete .csv file"/>
-              </ListItem>
-            </List>
-          </Grid>
           <Grid item xs={12}>
             <Typography className={classes.text}>
-              Select .csv Latitude and Longtitude fields. Coordinates assumed to be WGS84.
+              Select the property of interest from the list below.
             </Typography>
           </Grid>
           <Grid item xs={12} className={classes.select}>
             <FormControl fullWidth>
-              <InputLabel shrink>Latitude</InputLabel>
+              <InputLabel shrink>Property</InputLabel>
               <Select
-                value={this.props.csvData.latLabel}
-                onChange={(event) => this.props.setLat({lat: event.target.value})}>
-                {this.props.csvData.data[0].map(value => (
-                  <MenuItem value={value} key={uuid.v4()}>{value}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} className={classes.select}>
-            <FormControl fullWidth>
-              <InputLabel shrink>Longitude</InputLabel>
-              <Select
-                value={this.props.csvData.lonLabel}
-                onChange={(event) => this.props.setLon({lon: event.target.value})}>
-                {this.props.csvData.data[0].map(value => (
-                  <MenuItem value={value} key={uuid.v4()}>{value}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} className={classes.lastSelect}>
-            <FormControl fullWidth>
-              <InputLabel shrink>Field to Interpolate</InputLabel>
-              <Select
-                value={this.props.csvData.interestLabel}
-                onChange={(event) => this.props.setInterest({interest: event.target.value})}>
-                {this.props.csvData.data[0].map(value => (
+                value={this.props.shpData.propertyLabel}
+                onChange={(event) => this.props.setProperty({property: event.target.value})}>
+                {Object.keys(this.props.shpData.geojson.features[0].properties).map(value => (
                   <MenuItem value={value} key={uuid.v4()}>{value}</MenuItem>
                 ))}
               </Select>
@@ -161,6 +120,7 @@ class ShpContent extends Component {
         <List className={classes.list}>
            {shpButton}
            {dbfButton}
+           {propertySelect}
         </List>
       </Grid>
     );
@@ -170,16 +130,11 @@ class ShpContent extends Component {
 export default connect(
   {
     shpData: state`shpData`,
-    //csvInfo: state`csvInfo`,
 
-    //setLat: sequences`setLat`,
-    //setLon: sequences`setLon`,
-    //setInterest: sequences`setInterest`,
+    setProperty: sequences`setProperty`,
     loadShp: sequences`loadShp`,
     deleteShp: sequences`deleteShp`,
     loadDbf: sequences`loadDbf`,
-    deleteDbf: sequences`deleteDbf`,
-    //deleteSoilData: sequences`deleteSoilData`
   },
   withStyles(styles, {withTheme: true})(ShpContent)
 );

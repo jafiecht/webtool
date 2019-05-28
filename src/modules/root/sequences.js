@@ -3,7 +3,6 @@ import {featureCollection, point, polygon} from '@turf/helpers';
 import * as turf from '@turf/turf';
 import ls from 'local-storage';
 import axios from 'axios';
-import FileDownload from 'js-file-download';
 var shapefile = require('shapefile');
 
 var serverUrl = 'http://localhost:5000/'
@@ -59,7 +58,7 @@ export const setFileType = sequence("setFileType", [
 ////////////////////////////////////////////////////////////////////////
 //Read in and validate a csv
 export const loadCSV = sequence("loadCSV", [
-  ({store, props}) => {
+  ({store, get, props}) => {
     var reader = new FileReader();
     reader.onload = function(e) {
       var text = reader.result;
@@ -88,16 +87,12 @@ export const loadCSV = sequence("loadCSV", [
         } else {
           store.set(state`csvData`, {
             data: rows,
-            latLabel: 'Select Field',
-            lonLabel: 'Select Field',
-            interestLabel: 'Select Field',
+            header: true,
+            latIndex: 'Select Field',
+            lonIndex: 'Select Field',
+            interestIndex: 'Select Field',
           });
-          ls(`csvData`, {
-            data: rows,
-            latLabel: 'Select Field',
-            lonLabel: 'Select Field',
-            interestLabel: 'Select Field',
-          });
+          ls(`csvData`, get(state`csvData`));
         };
       }
     }
@@ -105,23 +100,37 @@ export const loadCSV = sequence("loadCSV", [
   },
 ]);
 
+
+////////////////////////////////////////////////////////////////////////
+//Validate the csv lat field chosen by user
+export const toggleHeader = sequence("toggleHeader", [
+  ({store, get}) => {
+    store.toggle(state`csvData.header`);
+    store.set(state`csvData.latIndex`, 'Select Field');
+    store.set(state`csvData.lonIndex`, 'Select Field');
+    store.set(state`csvData.interestIndex`, 'Select Field');
+    ls(`csvData`, get(state`csvData`));
+  },
+]);
+ 
 ////////////////////////////////////////////////////////////////////////
 //Validate the csv lat field chosen by user
 export const setLat = sequence("setLat", [
   ({store, get, props}) => {
-    var csvData = get(state`csvData.data`);
-    var latIndex = csvData[0].indexOf(props.lat);
-    var data = csvData.slice(1);
+    var data = get(state`csvData.data`);
+    if (get(state`csvData.header`)) {
+      data = data.slice(1);
+    }
     var err = null;
     data.forEach((row) => {
-      if (row[latIndex] > 90 || row[latIndex] < -90 || isNaN(row[latIndex])) {
+      if (row[props.index] > 90 || row[props.index] < -90 || isNaN(row[props.index])) {
         err = 'Field selected has invalid values for WGS84 latitude. Review field and try again.';
       }
     });
     if (err) {
       store.set(state`error`, err);
     } else {
-      store.set(state`csvData.latLabel`, props.lat);
+      store.set(state`csvData.latIndex`, props.index);
       ls(`csvData`, get(state`csvData`));
     }
   },
@@ -131,19 +140,20 @@ export const setLat = sequence("setLat", [
 //Validate the csv lon field chosen by user
 export const setLon = sequence("setLon", [
   ({store, get, props}) => {
-    var csvData = get(state`csvData.data`);
-    var lonIndex = csvData[0].indexOf(props.lon);
-    var data = csvData.slice(1);
+    var data = get(state`csvData.data`);
+    if (get(state`csvData.header`)) {
+      data = data.slice(1);
+    }
     var err = null;
     data.forEach((row) => {
-      if (row[lonIndex] > 90 || row[lonIndex] < -90 || isNaN(row[lonIndex])) {
+      if (row[props.index] > 180 || row[props.index] < -180 || isNaN(row[props.index])) {
         err = 'Field selected has invalid values for WGS84 longitude. Review field and try again.';
       }
     });
     if (err) {
       store.set(state`error`, err);
     } else {
-      store.set(state`csvData.lonLabel`, props.lon)
+      store.set(state`csvData.lonIndex`, props.index)
       ls(`csvData`, get(state`csvData`));
     }
   },
@@ -153,20 +163,43 @@ export const setLon = sequence("setLon", [
 //Validate the field to interpolate chosen by user
 export const setInterest = sequence("setInterest", [
   ({store, get, props}) => {
-    var csvData = get(state`csvData.data`);
-    var interestIndex = csvData[0].indexOf(props.interest);
-    var data = csvData.slice(1);
+    var data = get(state`csvData.data`);
+    if (get(state`csvData.header`)) {
+      data = data.slice(1);
+    }
     var err = null;
     data.forEach((row) => {
-      if (isNaN(row[interestIndex])) {
+      if (isNaN(row[props.index])) {
         err = 'Field selected for interpolation is not a number. Review field and try again.';
       }
     });
     if (err) {
       store.set(state`error`, err);
     } else {
-      store.set(state`csvData.interestLabel`, props.interest)
+      store.set(state`csvData.interestIndex`, props.index)
       ls(`csvData`, get(state`csvData`));
+    }
+  },
+]); 
+
+
+////////////////////////////////////////////////////////////////////////
+//Validate the field to interpolate chosen by user for the shapefile
+export const setProperty = sequence("setProperty", [
+  ({store, get, props}) => {
+    var shpGeojson  = get(state`shpData.geojson`);
+    
+    var err = null;
+    shpGeojson.features.forEach((feature) => {
+      if (isNaN(feature.properties[props.property])) {
+        err = 'Field selected for interpolation is not a number. Review field and try again.';
+      }
+    });
+    if (err) {
+      store.set(state`error`, err);
+    } else {
+      store.set(state`shpData.propertyLabel`, props.property)
+      ls(`shpData`, get(state`shpData`));
     }
   },
 ]); 
@@ -179,55 +212,109 @@ export const loadShp = sequence("loadShp", [
     var reader = new FileReader();
     reader.onload = function(e) {
       var text = reader.result;
-      store.set(state`shpData.rawShp`, text);
-      //ls(`shpData`, {
-        //rawShp: text,
-        //rawDbf: get(state`shpData.rawDbf`),
-        //latLabel: 'Select Field',
-        //lonLabel: 'Select Field',
-        //interestLabel: 'Select Field',
-      //});
+      store.set(state`shpData.rawShp`, [text]);
+      ls(`shpData`, get(state`shpData`));
     }
-    reader.readAsText(props.file[0]);
+    reader.readAsArrayBuffer(props.file[0]);
   },
 ]);
 
 ////////////////////////////////////////////////////////////////////////
 //Delete shapefile
 export const deleteShp = sequence("deleteShp", [
-  ({store}) => {
-    store.unset(state`shpData.rawShp`);
-    store.unset(state`shpData.rawDbf`);
+  ({store, get}) => {
+    store.set(state`shpData`, {});
+    ls(`shpData`, get(state`shpData`));
   }
 ]);
 
 
 ////////////////////////////////////////////////////////////////////////
-//Read in a .dbf file
+//Read in a .dbf file, read the shapefile and validate
 export const loadDbf = sequence("loadDbf", [
   ({store, props, get}) => {
     var reader = new FileReader();
-    reader.onload = function(e) {
-      var text = reader.result;
-      store.set(state`shpData.rawDbf`, text);
-      //ls(`shpData`, {
-        //rawShp: get(state`shpData.rawShp`),
-        //rawDbf: text,
-        //latLabel: 'Select Field',
-        //lonLabel: 'Select Field',
-        //interestLabel: 'Select Field',
-      //});
+    reader.onload = async function(e) {
+      var array = reader.result;
+      store.set(state`shpData.rawDbf`, [array]);
+      ls(`shpData`, get(state`shpData`));
+   
+      shapefile.read(get(state`shpData.rawShp`)[0], get(state`shpData.rawDbf`)[0])
+        .then((result) => {
+          
+          //Are there enough points?
+          if (result.features.length > 9) {
+
+            //Are there properties?
+            var properties = Object.keys(result.features[0].properties);
+            if (properties.length > 0) {
+              
+              //Do all the points have the same properties?
+              var propertyErr;
+              result.features.forEach(feature=> {
+                properties.forEach(property => {
+                  if (!(property in feature.properties)) {
+                    propertyErr = 'Works!';
+                  }
+                })
+              })
+ 
+              if (!propertyErr) {
+ 
+                //Are the points spread out over too large an area?
+                var bbox = turf.bboxPolygon(result.bbox);
+                if (turf.area(bbox) < 2580000 && turf.length(bbox) < 6) {
+
+                  //Is the area of interest large enough?
+                  if (turf.area(bbox) > 4050) {
+                    store.set(state`shpData.geojson`, result);
+                    store.set(state`shpData.propertyLabel`, 'Select Field');
+                    ls(`shpData`, get(state`shpData`));
+
+                  } else {
+                    store.set(state`error`, 'Points are are in to small an area for interpolation.')
+                    store.set(state`shpData`, {});
+                    ls(`shpData`, get(state`shpData`));
+                  }
+       
+                } else {
+                  store.set(state`error`, 'Points are spread out over too large an area.')
+                  store.set(state`shpData`, {});
+                  ls(`shpData`, get(state`shpData`));
+                }
+
+              } else {
+                store.set(state`error`, propertyErr);
+                store.set(state`shpData`, {});
+                ls(`shpData`, get(state`shpData`));
+              }              
+
+            } else {
+              var err = 'There are no property values. Check .dbf file.'
+              store.set(state`error`, err);
+              store.set(state`shpData`, {});
+              ls(`shpData`, get(state`shpData`));
+            }
+
+          } else {
+            store.set(
+               state`error`,
+              `${result.features.length} is not enough points for interpolation. At least ten observations are required.`
+            );
+            store.set(state`shpData`, {});
+            ls(`shpData`, get(state`shpData`));
+          }
+ 
+        })
+        .catch(() => {
+          var err = 'Unable to read files provided. Validate file content and format.'
+          store.set(state`error`, err);
+          store.set(state`shpData`, {});
+          ls(`shpData`, get(state`shpData`));
+        });
     }
-    reader.readAsText(props.file[0]);
-    shapefile.open(get(state`shpData.rawShp`), get(state`shpData.rawDbf`))
-      .then(source => source.read()
-        .then(function log(result) {
-          if (result.done) return;
-          console.log(result.value);
-          return source.read().then(log);
-        }))
-      .catch(error => console.error(error.stack));
-  },
+    reader.readAsArrayBuffer(props.file[0])
+  }
 ]);
 
 
@@ -235,47 +322,95 @@ export const loadDbf = sequence("loadDbf", [
 //Assemble the observations into a lat/lon set for the map.
 export const assembleObservations = sequence("assembleObservations", [
   ({store, get, props}) => {
-    var csvData = get(state`csvData`);
-
-    //Has a file been uploaded?
-		if(Object.keys(csvData).length > 0) {
-      //Have lat, lon, and interest been chosen?
-      if(csvData.latLabel === 'Select Field' || csvData.lonLabel === 'Select Field' || csvData.interestLabel === 'Select Field') {
-        store.set(state`error`, 'Latitude, Longitude, and Field to Interpolate are required fields. Select before continuing.');
-      } else {
-        var latIndex = csvData.data[0].indexOf(csvData.latLabel);
-        var lonIndex = csvData.data[0].indexOf(csvData.lonLabel);
-        var interestIndex = csvData.data[0].indexOf(csvData.interestLabel);
-        var observations = [];
-        csvData.data.forEach((values) => {
-          var observation = [values[latIndex], values[lonIndex], values[interestIndex]];
-          observations.push(observation); 
-        });
-        //Remove head
-        observations.shift();
-        var features = [];
-        observations.forEach((obs) => {
-          features.push(point([obs[0], obs[1]], {value: obs[2]}));
-        });
-        var pointsGeojson = featureCollection(features);
-        var bbox = turf.bboxPolygon(turf.bbox(pointsGeojson));
-        if (turf.area(bbox) > 258000 || turf.length(bbox) > 6) {
-          store.set(state`error`, 'Points are spread out over too large an area.')
+    if (get(state`fileType`) === 'csv') {
+      var csvData = get(state`csvData`);
+  
+      //Has a file been uploaded?
+  		if(Object.keys(csvData).length > 0) {
+        //Have lat, lon, and interest been chosen?
+        if(csvData.latIndex === 'Select Field' || csvData.lonIndex === 'Select Field' || csvData.interestIndex === 'Select Field') {
+          store.set(state`error`, 'Latitude, Longitude, and Field to Interpolate are required fields. Select before continuing.');
         } else {
-          if (turf.area(bbox) < 405) {
-            store.set(state`error`, 'Point area is too small for interpolation.')
+          var observations = [];
+          csvData.data.forEach((values) => {
+            var observation = [
+              values[csvData.latIndex], 
+              values[csvData.lonIndex], 
+              values[csvData.interestIndex]
+            ];
+            observations.push(observation); 
+          });
+          //Remove head if need be.
+          if (csvData.header) { observations.shift() }
+          var features = [];
+          observations.forEach((obs) => {
+            features.push(point([obs[1], obs[0]], {value: obs[2]}));
+          });
+          var pointsGeojson = featureCollection(features);
+          var bbox = turf.bboxPolygon(turf.bbox(pointsGeojson));
+          if (turf.area(bbox) > 2580000 || turf.length(bbox) > 6) {
+            store.set(state`error`, 'Points are spread out over too large an area.')
           } else {
-            store.set(state`geojson.points`, pointsGeojson);       
-            ls(`geojson`, get(state`geojson`));       
-            store.set(state`map.observations`, observations);
-            ls(`map`, get(state`map`));
-            store.set(state`currentPage`, 2);
-            ls(`currentPage`, 2);
+            if (turf.area(bbox) < 4050) {
+              store.set(state`error`, 'Point area is too small for interpolation.')
+            } else {
+              store.set(state`geojson.points`, pointsGeojson);       
+              ls(`geojson`, get(state`geojson`));       
+              store.set(state`map.observations`, observations);
+              ls(`map`, get(state`map`));
+              store.set(state`currentPage`, 2);
+              ls(`currentPage`, 2);
+            }
           }
         }
+      } else {
+        store.set(state`error`, 'Select file before continuing.');
       }
+ 
+    //The file is a shapefile
     } else {
-      store.set(state`error`, 'Select file before continuing.');
+     
+      var shpData = get(state`shpData`);
+
+      //Are all the files loaded and validated?
+      if (shpData.rawShp && shpData.rawDbf && shpData.geojson) {
+       
+        //Has a property been selected?
+        if (shpData.propertyLabel !== 'Select Field') {
+          var geojson = {
+            features: [],
+            type: shpData.geojson.type
+          };       
+
+          var obs = [];
+
+          shpData.geojson.features.forEach(feature => {
+            var paredFeature = {};
+            paredFeature.geometry = feature.geometry;
+            paredFeature.type = feature.type;
+            paredFeature.properties = {};
+            paredFeature.properties.value = feature.properties[shpData.propertyLabel];
+            geojson.features.push(paredFeature);
+            obs.push([
+              feature.geometry.coordinates[1], 
+              feature.geometry.coordinates[0], 
+              feature.properties[shpData.propertyLabel]
+            ])
+          })
+          store.set(state`geojson.points`, geojson);       
+          ls(`geojson`, get(state`geojson`));       
+          store.set(state`map.observations`, obs);
+          ls(`map`, get(state`map`));
+          store.set(state`currentPage`, 2);
+          ls(`currentPage`, 2);
+  
+        } else {
+          store.set(state`error`, 'Select property to interpolate before continuing.');
+        }
+
+      } else {
+        store.set(state`error`, 'Select file before continuing.');
+      }
     }
   },
 ]); 
@@ -346,14 +481,14 @@ export const validateBoundary = sequence("validateBoundary", [
       } else {
         var vertexList = [];
         Object.keys(vertices).forEach((vertex) => {
-          vertexList.push(vertices[vertex]);
+          vertexList.push([vertices[vertex][1], vertices[vertex][0]]);
         });
-        vertexList.push(vertices[0]); 
+        vertexList.push([vertices[0][1], vertices[0][0]]);
         var feature = polygon([vertexList]);
-        if (turf.area(feature) > 258000 || turf.length(feature) > 6) {
+        if (turf.area(feature) > 2580000 || turf.length(feature) > 6) {
           store.set(state`error`, 'Area selected is too large.')
         } else {
-          if (turf.area(feature) < 405) {
+          if (turf.area(feature) < 4050) {
             store.set(state`error`,'Area selected is too small.')
           } else {
             var points = get(state`geojson.points.features`);
