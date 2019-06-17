@@ -62,7 +62,15 @@ class Status extends Component {
       text = (
         <Grid item justify='center' container>
           <Typography className={classes.text} color='secondary' align='center'>
-            Your request id was not found. Your id may incorrectly entered, or your request has already been pruned from the server. Request results only persist for two days, after which they are purged.
+            Your request id was not found. Your id may incorrectly entered.
+          </Typography>
+        </Grid>
+      );
+    } else if (this.props.status === 'removed') {
+      text = (
+        <Grid item justify='center' container>
+          <Typography className={classes.text} color='secondary' align='center'>
+            Your request has been pruned from the server. Request results only persist for two days, after which they are purged.
           </Typography>
         </Grid>
       );

@@ -530,7 +530,7 @@ export const submitRequest = sequence("submitRequest", [
         method: 'post',
         url: serverUrl + 'submit',
         data: {
-          userEmail: get(state`request.email`),
+          email: get(state`request.email`),
           points: get(state`geojson.points`),
           boundary: get(state`geojson.boundary`),
         },
@@ -574,6 +574,7 @@ export const newRequest = sequence("newRequest", [
   ({store, props}) => {
     store.unset(state`request.inputID`);
     store.unset(state`request.id`);
+    store.unset(state`request.status`);
     store.set(state`currentPage`, 1);
     ls('currentPage', 1)
   },
@@ -591,11 +592,14 @@ export const checkStatus = sequence("checkStatus", [
           id: get(state`request.inputID`),
         },
       }).then((response) => {
+          console.log(response.data.status);
           store.set(state`request.status`, response.data.status);
           if (response.data.status === 'complete') {
-            if (response.data.tiffp  && response.data.jpgfp && response.data.bounds) {
-              store.set(state`request.tifPath`, serverUrl + response.data.tiffp);
-              store.set(state`request.jpgPath`, serverUrl + response.data.jpgfp);
+           
+            console.log(response.data);
+            if (response.data.tifPath  && response.data.jpgPath && response.data.bounds) {
+              store.set(state`request.tifPath`, serverUrl + response.data.tifPath);
+              store.set(state`request.jpgPath`, serverUrl + response.data.jpgPath);
               store.set(state`request.bounds`, response.data.bounds);
             } else {
               store.unset(state`request.status`);
